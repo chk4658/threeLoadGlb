@@ -1,19 +1,15 @@
 <template>
-  <div style="display: flex;width: 100%;height: 100%">
-    <div id="container" style="height: 100%;flex: 1;flex-shrink: 0"></div>
-    <div style="height: 100%;flex: 1"></div>
-  </div>
-
+  <div id="container"></div>
 </template>
 <script>
 import * as THREE from "three";
-
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
-
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
-
+import { GUI } from "three/addons/libs/lil-gui.module.min.js";
+// GUI 使用
+/**
+ * 1.AxesHelper坐标系
+ * 2.GUI 使用
+ */
 export default {
   computed: {},
   data() {
@@ -26,62 +22,48 @@ export default {
   methods: {
     init() {
 
-
-      let mixer;
-
-      const clock = new THREE.Clock();
       const container = document.getElementById("container");
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setPixelRatio(window.devicePixelRatio);
+      const scene = new THREE.Scene();
+
+      const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+      const renderer = new THREE.WebGLRenderer();
+
       renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+
       container.appendChild(renderer.domElement);
 
-      const pmremGenerator = new THREE.PMREMGenerator(renderer);
+      const geometry = new THREE.BoxGeometry(1, 1, 1);
 
-      const scene = new THREE.Scene();
-      // 加载背景图片纹理
-      const textureLoader = new THREE.TextureLoader();
-      textureLoader.load('/image/starry3x.jpg', function (texture) {
-        scene.background = texture; // 设置场景背景
-        scene.environment = pmremGenerator.fromScene(new RoomEnvironment(renderer), 0.04).texture;
-      });
+      const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
+      const cube = new THREE.Mesh(geometry, material);
 
-      const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 100);
-      camera.position.set(5, 2, 8);
+      scene.add(cube);
+
+      camera.position.set(2, 3, 5);
+
+      camera.lookAt(0, 0, 0);
+
+      const axesHelper = new THREE.AxesHelper(5);
+
+      scene.add(axesHelper);
 
       const controls = new OrbitControls(camera, renderer.domElement);
-      controls.enabled = true;
-      controls.target.set(0, 0, 0);
-      controls.update();
-      controls.enablePan = false;
-      controls.enableDamping = true;
 
-      const dracoLoader = new DRACOLoader();
-      dracoLoader.setDecoderPath("gltf/");
+      function animate() {
 
-      const loader = new GLTFLoader();
-      loader.setDRACOLoader(dracoLoader);
-      loader.load("demo/149.glb", function(gltf) {
+        controls.update();
 
-        console.log(gltf, "-");
-        const model = gltf.scene;
-        model.position.set(0, 0, 0);
-        model.scale.set(0.5, 0.5, 0.5);
-        scene.add(model);
+        requestAnimationFrame(animate);
 
-        mixer = new THREE.AnimationMixer(model);
-        // mixer.clipAction(gltf.animations[0]).play();
+        renderer.render(scene, camera);
 
-        renderer.setAnimationLoop(animate);
+      }
 
-      }, undefined, function(e) {
-
-        console.error(e);
-
-      });
-
+      animate();
 
       window.onresize = function() {
 
@@ -93,17 +75,34 @@ export default {
       };
 
 
-      function animate() {
+      let eventObj = {
+        Fullscreen: function() {
+          document.body.requestFullscreen();
+        },
+      };
 
-        const delta = clock.getDelta();
+      const gui = new GUI();
+      gui.add(eventObj, "Fullscreen").name("全屏");
 
-        mixer.update(delta);
+      const folder = gui.addFolder("cube - position");
+      folder.add(cube.position, "x", -5, 5).name("position - x");
+      folder.add(cube.position, "y", -5, 5).name("position - y");
+      folder.add(cube.position, "z", -5, 5).name("position - z").onFinishChange((v) => {
+        console.log(v, "onFinishChange");
+      }).onChange((v) => {
+        console.log(v, "onChange");
+      });
 
-        controls.update();
+      gui.add(material, "wireframe").name("线框模式");
 
-        renderer.render(scene, camera);
 
-      }
+      const colorParams = {
+        cubeColor: "#ff0000",
+      };
+
+      gui.addColor(colorParams, "cubeColor").name("color").onChange((v) => {
+        cube.material.color.set(v);
+      });
 
     },
   },

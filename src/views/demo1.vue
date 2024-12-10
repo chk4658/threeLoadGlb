@@ -1,9 +1,5 @@
 <template>
-  <div style="display: flex;width: 100%;height: 100%">
-    <div id="container" style="height: 100%;flex: 1;flex-shrink: 0"></div>
-    <div style="height: 100%;flex: 1"></div>
-  </div>
-
+  <div id="container"></div>
 </template>
 <script>
 import * as THREE from "three";
@@ -13,6 +9,11 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+
+/**
+ * 1.加载 glb 文件
+ * 2.加载压缩过的模型
+ */
 
 export default {
   computed: {},
@@ -53,12 +54,15 @@ export default {
       controls.enablePan = false;
       controls.enableDamping = true;
 
+      // 实例化加载器draco
       const dracoLoader = new DRACOLoader();
-      dracoLoader.setDecoderPath("gltf/");
+      // 设置draco路径
+      dracoLoader.setDecoderPath("draco/");
 
       const loader = new GLTFLoader();
+      // 设置gltf加载器draco解码器
       loader.setDRACOLoader(dracoLoader);
-      loader.load("demo/test1.glb", function(gltf) {
+      loader.load("models/test1.glb", function(gltf) {
 
         console.log(gltf, "-");
         const model = gltf.scene;

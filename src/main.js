@@ -7,7 +7,6 @@ Vue.config.productionTip = false;
 // reset css
 import "@/styles/normalize.css";
 import "@/styles/common.less";
-import "@/styles/transition.less";
 
 
 // permission
@@ -17,7 +16,7 @@ import "@/router/permission.js";
 import "@/icons";
 
 new Vue({
-    router,
-    store,
-    render: (h) => h(App),
+  router,
+  store,
+  render: (h) => h(App),
 }).$mount("#app");

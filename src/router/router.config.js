@@ -12,11 +12,11 @@ export const asyncRouterMap = [];
 export var constantRouterMap = [
     {
         path: "/",
-        redirect: "/demo1",
+        redirect: "/test",
     },
     {
-        path: "/demo1",
-        name: "demo1",
-        component: () => import("@/views/demo1"),
+        path: "/test",
+        name: "test",
+        component: () => import("@/views/demo5"),
     },
 ];
